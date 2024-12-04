@@ -122,6 +122,7 @@ namespace
 {
     const char PEER_ID[] = "qB";
     const auto USER_AGENT = QStringLiteral("qBittorrent Enhanced/" QBT_VERSION_2);
+    const auto USER_AGENT_UPSTREAM = QStringLiteral("qBittorrent/" QBT_VERSION_2_UPSTREAM);
     const QString DEFAULT_DHT_BOOTSTRAP_NODES = u"dht.libtorrent.org:25401, dht.transmissionbt.com:6881, router.bittorrent.com:6881, router.utorrent.com:6881, dht.aelitis.com:6881"_s;
 
     void torrentQueuePositionUp(const lt::torrent_handle &handle)
@@ -537,6 +538,7 @@ SessionImpl::SessionImpl(QObject *parent)
     , m_autoBanBTPlayerPeer(BITTORRENT_SESSION_KEY(u"AutoBanBTPlayerPeer"_s), false)
     , m_shadowBan(BITTORRENT_SESSION_KEY(u"ShadowBan"_s), false)
     , m_shadowBannedIPs(u"State/ShadowBannedIPs"_s, QStringList(), Algorithm::sorted<QStringList>)
+    , m_upstreamFingerprint(BITTORRENT_SESSION_KEY(u"UpstreamFingerprint"_s), false)
     , m_isAutoUpdateTrackersEnabled(BITTORRENT_SESSION_KEY(u"AutoUpdateTrackersEnabled"_s), false)
     , m_seedingLimitTimer {new QTimer(this)}
     , m_resumeDataTimer {new QTimer(this)}
@@ -1688,11 +1690,21 @@ void SessionImpl::endStartup(ResumeSessionContext *context)
 void SessionImpl::initializeNativeSession()
 {
     lt::settings_pack pack = loadLTSettings();
+    const std::string peerId = lt::generate_fingerprint(
+        PEER_ID,
+        QBT_VERSION_MAJOR,
+        QBT_VERSION_MINOR,
+        QBT_VERSION_BUGFIX,
+        isUpstreamFingerprintEnabled() ? QBT_VERSION_BUILD_UPSTREAM : QBT_VERSION_BUILD
+    );
 
     const std::string peerId = lt::generate_fingerprint(PEER_ID, QBT_VERSION_MAJOR, QBT_VERSION_MINOR, QBT_VERSION_BUGFIX, QBT_VERSION_BUILD);
     pack.set_str(lt::settings_pack::peer_fingerprint, peerId);
 
     pack.set_bool(lt::settings_pack::listen_system_port_fallback, false);
+    pack.set_str(lt::settings_pack::user_agent, isUpstreamFingerprintEnabled()
+        ? USER_AGENT_UPSTREAM.toStdString() : USER_AGENT.toStdString()
+    );
     pack.set_str(lt::settings_pack::user_agent, USER_AGENT.toStdString());
     pack.set_bool(lt::settings_pack::use_dht_as_fallback, false);
     // Speed up exit
@@ -1740,7 +1752,7 @@ void SessionImpl::initializeNativeSession()
 #endif
 
     LogMsg(tr("Peer ID: \"%1\"").arg(QString::fromStdString(peerId)), Log::INFO);
-    LogMsg(tr("HTTP User-Agent: \"%1\"").arg(USER_AGENT), Log::INFO);
+    LogMsg(tr("HTTP User-Agent: \"%1\"").arg(isUpstreamFingerprintEnabled() ? USER_AGENT_UPSTREAM : USER_AGENT), Log::INFO);
     LogMsg(tr("Distributed Hash Table (DHT) support: %1").arg(isDHTEnabled() ? tr("ON") : tr("OFF")), Log::INFO);
     LogMsg(tr("Local Peer Discovery support: %1").arg(isLSDEnabled() ? tr("ON") : tr("OFF")), Log::INFO);
     // Enhanced features
@@ -5159,6 +5171,19 @@ void SessionImpl::setShadowBannedIPs(const QStringList &newList)
     // and install it again into m_session
     m_shadowBannedIPs = filteredList;
     configureDeferred();
+}
+
+bool SessionImpl::isUpstreamFingerprintEnabled() const
+{
+    return m_upstreamFingerprint;
+}
+
+void SessionImpl::setUpstreamFingerprint(bool value)
+{
+    if (value != isUpstreamFingerprintEnabled()) {
+        m_upstreamFingerprint = value;
+        LogMsg(tr("Restart is required to toggle Upstream Fingerprint support"), Log::WARNING);
+    }
 }
 
 bool SessionImpl::isListening() const

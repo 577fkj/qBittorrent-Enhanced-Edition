@@ -1209,6 +1209,14 @@ Use ';' to split multiple entries. Can use wildcard '*'.)QBT_TR[CONTEXT=OptionsD
                     <input type="checkbox" id="autoBanBittorrentPlayer">
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <label for="upstreamFingerprint">QBT_TR(Upstream Fingerprint:)QBT_TR[CONTEXT=OptionsDialog]</label>
+                </td>
+                <td>
+                    <input type="checkbox" id="upstreamFingerprint">
+                </td>
+            </tr>
         </table>
     </fieldset>
     <fieldset class="settings">
@@ -2444,6 +2452,7 @@ Use ';' to split multiple entries. Can use wildcard '*'.)QBT_TR[CONTEXT=OptionsD
                     $("markOfTheWeb").setProperty("checked", pref.mark_of_the_web);
                     $("autoBanUnknownPeer").setProperty("checked", pref.auto_ban_unknown_peer);
                     $("autoBanBittorrentPlayer").setProperty("checked", pref.auto_ban_bt_player_peer);
+                    $('upstreamFingerprint').setProperty('checked', pref.upstream_fingerprint);
                     $("shadowBan").setProperty("checked", pref.shadow_ban_enabled);
                     $("shadowBannedIPs").setProperty("value", pref.shadow_banned_IPs);
                     $("ignoreSSLErrors").setProperty("checked", pref.ignore_ssl_errors);
@@ -2907,6 +2916,7 @@ Use ';' to split multiple entries. Can use wildcard '*'.)QBT_TR[CONTEXT=OptionsD
             settings["mark_of_the_web"] = $("markOfTheWeb").getProperty("checked");
             settings["auto_ban_unknown_peer"] = $("autoBanUnknownPeer").getProperty("checked");
             settings["auto_ban_bt_player_peer"] = $("autoBanBittorrentPlayer").getProperty("checked");
+            settings["upstream_fingerprint"] = $('upstreamFingerprint').getProperty('checked');
             settings["shadow_ban_enabled"] = $("shadowBan").getProperty("checked");
             settings["shadow_banned_IPs"] = $("shadowBannedIPs").getProperty("checked");
             settings["ignore_ssl_errors"] = $("ignoreSSLErrors").getProperty("checked");
