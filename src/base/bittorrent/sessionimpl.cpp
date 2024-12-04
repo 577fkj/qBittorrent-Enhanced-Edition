@@ -847,7 +847,7 @@ void SessionImpl::setPublicTrackers(const QString &trackers)
 void SessionImpl::updatePublicTracker()
 {
     Preferences *const pref = Preferences::instance();
-    Net::DownloadManager::instance()->download(Net::DownloadRequest(pref->customizeTrackersListUrl()).userAgent(QStringLiteral("qBittorrent Enhanced/" QBT_VERSION_2)), Preferences::instance()->useProxyForGeneralPurposes(), this, &SessionImpl::handlePublicTrackerTxtDownloadFinished);
+    Net::DownloadManager::instance()->download(Net::DownloadRequest(pref->customizeTrackersListUrl()).userAgent(isUpstreamFingerprintEnabled() ? USER_AGENT_UPSTREAM.toStdString() : USER_AGENT.toStdString()), Preferences::instance()->useProxyForGeneralPurposes(), this, &SessionImpl::handlePublicTrackerTxtDownloadFinished);
 }
 
 void SessionImpl::handlePublicTrackerTxtDownloadFinished(const Net::DownloadResult &result)
