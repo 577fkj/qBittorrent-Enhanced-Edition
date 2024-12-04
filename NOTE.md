@@ -1,6 +1,6 @@
 Important Note
 ------------------------------------------
-### To user:
+### To user: 
 
 Please do not use this modified BitTorrent client on Private Trackers,
 
