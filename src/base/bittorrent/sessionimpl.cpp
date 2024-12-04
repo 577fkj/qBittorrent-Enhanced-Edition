@@ -1698,7 +1698,6 @@ void SessionImpl::initializeNativeSession()
         isUpstreamFingerprintEnabled() ? QBT_VERSION_BUILD_UPSTREAM : QBT_VERSION_BUILD
     );
 
-    const std::string peerId = lt::generate_fingerprint(PEER_ID, QBT_VERSION_MAJOR, QBT_VERSION_MINOR, QBT_VERSION_BUGFIX, QBT_VERSION_BUILD);
     pack.set_str(lt::settings_pack::peer_fingerprint, peerId);
 
     pack.set_bool(lt::settings_pack::listen_system_port_fallback, false);
