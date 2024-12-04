@@ -1704,7 +1704,6 @@ void SessionImpl::initializeNativeSession()
     pack.set_str(lt::settings_pack::user_agent, isUpstreamFingerprintEnabled()
         ? USER_AGENT_UPSTREAM.toStdString() : USER_AGENT.toStdString()
     );
-    pack.set_str(lt::settings_pack::user_agent, USER_AGENT.toStdString());
     pack.set_bool(lt::settings_pack::use_dht_as_fallback, false);
     // Speed up exit
     pack.set_int(lt::settings_pack::auto_scrape_interval, 1200); // 20 minutes
